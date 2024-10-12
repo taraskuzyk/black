@@ -785,7 +785,9 @@ def left_hand_split(
             current_leaves = tail_leaves if body_leaves else head_leaves
         current_leaves.append(leaf)
         if current_leaves is head_leaves:
-            if leaf.type in OPENING_BRACKETS:
+            if leaf.type in OPENING_BRACKETS and not _is_generic_func_def(
+                current_leaves
+            ):
                 matching_bracket = leaf
                 current_leaves = body_leaves
     if not matching_bracket or not tail_leaves:
@@ -804,6 +806,13 @@ def left_hand_split(
     for result in (head, body, tail):
         if result:
             yield result
+
+
+def _is_generic_func_def(leaves: Collection[Leaf]) -> bool:
+    if len(leaves) != 3:
+        return False
+    first, _, third = leaves
+    return first.value == "def" and third.value == "["
 
 
 def right_hand_split(
